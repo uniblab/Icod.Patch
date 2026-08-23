@@ -19,11 +19,20 @@ build()
     dotnet build Icod.Patch.sln -c Debug --no-restore
 }
 
+test()
+{
+    printf '\n=== Test ===\n'
+    dotnet test Icod.Patch.sln \
+        -c Debug \
+        --no-build
+}
+
 case "${1-}" in
     "")
         clean
         restore
         build
+        test
         ;;
 
     clean)
@@ -38,9 +47,13 @@ case "${1-}" in
         build
         ;;
 
+    test)
+        test
+        ;;
+
     *)
         printf 'Invalid section: %s\n' "$1" >&2
-        printf 'Usage: %s [clean|restore|build]\n' "$0" >&2
+        printf 'Usage: %s [clean|restore|build|test]\n' "$0" >&2
         exit 1
         ;;
 esac

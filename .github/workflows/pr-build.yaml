@@ -20,3 +20,4 @@ jobs:
       - run: dotnet clean Icod.Patch.sln -c Staging
       - run: dotnet restore Icod.Patch.sln
       - run: dotnet build Icod.Patch.sln -c Staging --no-restore -p:ContinuousIntegrationBuild=true
+      - run: dotnet test Icod.Patch.sln -c Staging --no-build --logger trx
