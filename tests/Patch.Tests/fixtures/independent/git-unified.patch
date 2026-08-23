@@ -1,0 +1,8 @@
+diff --git a/file.txt b/file.txt
+index 3367afd..3e75765 100644
+--- a/file.txt
++++ b/file.txt
+@@ -1,2 +1,2 @@ greeting
+ hello
+-old
++new

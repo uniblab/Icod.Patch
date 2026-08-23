@@ -1,0 +1,9 @@
+*** left.txt
+--- right.txt
+***************
+*** 1,2 ****
+  same
+! left
+--- 1,2 ----
+  same
+! right

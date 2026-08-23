@@ -1,0 +1,5 @@
+--- old.txt
++++ new.txt
+@@ -1,2 +1,1 @@
+-only one old line
++new

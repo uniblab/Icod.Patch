@@ -1,0 +1,5 @@
+--- old.txt
++++ new.txt
+@@ -1 +1 @@
+-old
++new

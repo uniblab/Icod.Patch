@@ -1,0 +1,10 @@
+0a1,2
+> first
+> second
+2c4
+< old
+---
+> new
+5,6d6
+< remove one
+< remove two

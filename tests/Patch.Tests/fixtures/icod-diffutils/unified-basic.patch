@@ -1,0 +1,6 @@
+--- left.txt
++++ right.txt
+@@ -1,2 +1,2 @@
+ same
+-left
++right

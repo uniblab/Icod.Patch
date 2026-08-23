@@ -1,0 +1,9 @@
+--- old.txt	2026-08-01 12:00:00.000000000 -0400
++++ new.txt	2026-08-01 12:01:00.000000000 -0400
+@@ -1,2 +1,2 @@ first function
+ same
+-old
++new
+@@ -5,0 +6,2 @@ second function
++added one
++added two
