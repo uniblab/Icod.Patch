@@ -1,76 +1,267 @@
-# Icod.Patch
+# PATCH(1)
 
-`Icod.Patch` is the standalone C# implementation of GNU `patch`, targeting `net10.0` with C# 13.
+## NAME
 
-The authoritative behavioral baseline is GNU patch 2.8. Pinned release metadata and verification values are recorded in [`upstream/GNU-patch-2.8.md`](upstream/GNU-patch-2.8.md), the final option/conformance inventory is recorded in [`upstream/GNU-patch-2.8-option-matrix.md`](upstream/GNU-patch-2.8-option-matrix.md), and deliberate residual differences are recorded in [`upstream/P12-closure-audit.md`](upstream/P12-closure-audit.md).
+**patch** — apply diff files to original files
 
-## Extraction status
-
-This repository contains the standalone G8 extraction of `Icod.Patch` from `Icod.CoreUtils`. The production source remains byte-for-byte aligned with the CoreUtils G7 merge snapshot, commit `945a33c7ec80222983a37a35084a93060bf7c519`, except for repository/project infrastructure required by the standalone repository.
-
-The dedicated `Icod.Patch.Tests` project and its complete fixture corpus are now part of the standalone solution. The migrated tests cover parser/application behavior, canonical-path and containment policy, metadata and transaction recovery, fuzz and offset matching, reversal, backup/reject/output behavior, compatibility, process-host invocation, deterministic fuzzing, and opt-in GNU patch 2.8 differential checks.
-
-The standalone projects reference only their repository-local product project and published neutral dependencies. They do not depend on `Icod.CoreUtils.Shared` or `Icod.DiffUtils.Shared`. Removal of the now-migrated Patch files from `Icod.CoreUtils` is intentionally a separate repository-cleanup step after this standalone repository is independently validated.
-
-The standalone development and extraction record is maintained in [`Icod.Patch-Development-Roadmap.md`](Icod.Patch-Development-Roadmap.md).
-
-## Current implementation
-
-Patch Waves A through D and Phases P11A–P12—Phases P0 through P12—are implemented. The command:
-
-- uses the published `Icod.CommandFramework` command and filesystem contracts;
-- preserves patch bytes, source offsets, line endings, incomplete records, and bounded spill storage;
-- parses unified, context, normal, and patch-compatible ed scripts into immutable common models;
-- applies exact, offset, fuzz, whitespace, reverse, prerequisite, and merge policy to immutable virtual targets;
-- consumes `Icod.Path` for lexical and physical path resolution, roots, volumes, links, reparse points, missing components, and containment;
-- implements explicit original-file operands, `-d`, component-aware `-p`, quoted names, `Index:` evidence, GNU/POSIX candidate ordering, `/dev/null` creation/deletion forms, multiple file patches, and per-file status aggregation;
-- implements reject, backup, output, dry-run, prompt, quoting, status, mode, timestamp, and metadata policy above the shared filesystem contracts;
-- stages complete exclusive sibling temporary files and flushes them before destination mutation;
-- revalidates filesystem identity immediately before commit and preserves explicit no-follow policy;
-- recovers target-related artifacts in per-file units while retaining completed earlier units for GNU-visible multi-file partial success; and
-- distinguishes failed-before-commit, rolled-back, partially committed, rollback-incomplete, and cleanup-incomplete transaction outcomes.
-
-The containment policy is intentionally stricter than historical GNU patch: every selected target, output, backup, and reject artifact must remain within the physically canonical `-d` working root. Parent traversal, cross-volume targets, and link/reparse resolutions that escape that root are rejected. Terminal links are rejected by default and followed only with `--follow-symlinks`.
-
-## Dependency boundary
-
-The standalone executable depends on:
-
-- `Icod.CommandFramework` 1.1.0; and
-- `Icod.Path` 1.0.0.
-
-`Icod.Patch` consumes textual patch streams and does not reference `Icod.DiffUtils.Shared`, invoke native `patch`, invoke native `ed`, or depend on `Icod.CoreUtils.Shared`.
-
-## Final limitations
-
-Icod.Patch 1.0 deliberately does not implement `-D`/`--ifdef`, `--read-only=ignore|warn|fail`, the GNU `DEBUGGING`-only `-x` surface, the obsolete three-operand `-b` compatibility form, Git binary/copy/rename payloads, hard-link-set topology updates, or FIFO/device/socket targets. The transaction layer does not provide persistent crash-recovery journaling. See the closure audit for the complete platform and behavior ledger.
-
-## Build
-
-On Unix-like hosts:
-
-```sh
-./build.sh
-```
-
-On Windows:
-
-```bat
-build.cmd
-```
-
-With no argument, both scripts run `clean`, `restore`, `build`, and `test`. Individual verbs may also be run directly:
+## SYNOPSIS
 
 ```text
-clean
-restore
-build
-test
+patch [OPTION]... [ORIGFILE [PATCHFILE]]
 ```
 
-The standalone CI performs clean/restore/build/test across `windows-latest`, `ubuntu-latest`, and `macos-latest`:
+## DESCRIPTION
 
-- pull requests use the `Staging` configuration; and
-- pushes to `main` use the `Release` configuration.
+`Icod.Patch` is a managed .NET implementation of GNU `patch(1)`, modeled on GNU patch 2.8 and targeting .NET 10 with C# 13.
 
-The Linux GNU differential tests remain opt-in: they execute only when the host has an installed executable that identifies itself specifically as GNU patch 2.8. Ordinary tests have no native `patch` or `ed` dependency.
+`patch` reads a difference listing and applies its changes to an original file or set of files. Patch input may come from standard input, an explicit `-i` input file, or the `PATCHFILE` operand. When `ORIGFILE` is omitted, file names are selected from patch headers and `Index:` evidence according to GNU- or POSIX-style policy.
+
+The implementation accepts unified, context, normal, and patch-compatible ed-script input. It preserves patch bytes, source offsets, LF/CRLF/CR line endings, incomplete final records, and invalid non-directive byte values. Matching supports exact placement, offsets, bounded fuzz, horizontal-whitespace canonicalization, reversal detection, prerequisites, and merge output.
+
+Filesystem selection and mutation are implemented through `Icod.Path` and `Icod.CommandFramework`. `Icod.Patch` does not require native `patch`, native `ed`, `Icod.DiffUtils.Shared`, or `Icod.CoreUtils.Shared` at runtime.
+
+The path-containment policy is intentionally stricter than historical GNU patch behavior. Selected targets, alternate outputs, backups, and reject files must remain beneath the physically canonical `-d` working root. Parent traversal, cross-volume escape, and link or reparse-point resolution outside that root are rejected.
+
+## INPUT FORMATS
+
+When no input format is forced, `patch` detects supported patch sections while retaining surrounding non-patch text.
+
+```text
+-c, --context
+    Interpret input as a context diff.
+
+-e, --ed
+    Interpret input as a patch-compatible ed script. The script is applied by
+    the managed engine; no external ed executable is invoked.
+
+-n, --normal
+    Interpret input as a normal diff.
+
+-u, --unified
+    Interpret input as a unified diff.
+
+--binary
+    Select binary-compatible processing. Patch and target content remain
+    byte-oriented, including non-UTF-8 data, exact line terminators, and
+    incomplete final records.
+```
+
+## OPTIONS
+
+### Input and directory selection
+
+```text
+-i FILE, --input=FILE
+    Read patch input from FILE. FILE may be - for standard input. An explicit
+    input file conflicts with a PATCHFILE operand.
+
+-d DIR, --directory=DIR
+    Use DIR as the working directory and canonical containment root.
+
+-p NUM, --strip=NUM
+    Strip NUM leading pathname-component separator runs from names found in
+    patch input. Component handling follows the active platform semantics.
+
+-g NUM, --get=NUM
+    Select version-control retrieval policy. Positive values permit retrieval,
+    zero disables it, and negative values request an interactive decision.
+    Retrieval is exposed through the managed provider boundary; Icod.Patch does
+    not implicitly shell out to a host version-control command.
+
+--posix
+    Select the supported POSIX policy defaults for filename candidate ordering,
+    version-control retrieval, and mismatch backup behavior.
+
+--follow-symlinks
+    Permit terminal target and output links to be followed after canonical
+    containment checks. Terminal links are rejected by default.
+```
+
+### Matching and application
+
+```text
+-f, --force
+    Suppress automatic reversal and prerequisite refusal policy.
+
+-F NUM, --fuzz=NUM
+    Set the maximum nonnegative context fuzz factor used during hunk matching.
+
+-l, --ignore-whitespace
+    Match nonempty horizontal runs of spaces and tabs canonically.
+
+-m, --merge[=STYLE]
+    Merge changes instead of producing ordinary rejected hunks. STYLE may be
+    merge or diff3. Short -m selects merge style.
+
+-N, --forward
+    Skip patches that appear to be reversed or already applied.
+
+-R, --reverse
+    Apply the patch in reverse. Reverse application of ed scripts is rejected
+    because the script lacks enough old/new information.
+
+-t, --batch
+    Use noninteractive defaults for reversal and prerequisite decisions.
+
+-E, --remove-empty-files
+    Remove a successfully patched file when its resulting content is empty.
+
+--dry-run
+    Perform parsing, path selection, matching, and artifact planning without
+    committing filesystem changes.
+```
+
+### Output, rejects, and backups
+
+```text
+-o FILE, --output=FILE
+    Write patched content to FILE instead of replacing the selected input.
+    FILE may be - for standard output.
+
+-r FILE, --reject-file=FILE
+    Write rejected hunks to FILE instead of the default reject pathname.
+    FILE may be - to discard rejects.
+
+--reject-format=FORMAT
+    Select context or unified reject output.
+
+-b, --backup
+    Retain the original file using the selected backup naming policy.
+
+-B PREFIX, --prefix=PREFIX
+    Prefix the complete simple-backup pathname with PREFIX.
+
+-Y PREFIX, --basename-prefix=PREFIX
+    Prefix only the basename when constructing a simple backup pathname.
+
+-z SUFFIX, --suffix=SUFFIX
+    Use SUFFIX for simple backup names.
+
+-V METHOD, --version-control=METHOD
+    Select backup naming: existing/nil, numbered/t, or simple/never. Unique
+    abbreviations are accepted.
+
+--backup-if-mismatch
+    Request a backup when patch application requires mismatch heuristics.
+
+--no-backup-if-mismatch
+    Suppress mismatch-triggered backups unless another option requires one.
+```
+
+### Timestamps, diagnostics, and display
+
+```text
+-T, --set-time
+    Apply patch-header access and modification times using local-time policy.
+
+-Z, --set-utc
+    Apply patch-header access and modification times using UTC policy,
+    including post-2038 timestamps where the host supports them.
+
+-s, --quiet, --silent
+    Suppress ordinary progress output while retaining errors.
+
+--verbose
+    Emit additional artifact and application diagnostics.
+
+--quoting-style=STYLE
+    Select filename quoting style: literal, shell, shell-always, c, or escape.
+
+--help
+    Display command help.
+
+-v, --version
+    Display Icod.Patch version information.
+```
+
+### Recognized but unavailable GNU surfaces
+
+The following GNU patch options are retained in the parser so GNU long-option abbreviation and ambiguity rules remain well defined, but Icod.Patch 1.0 reports them as unavailable capabilities:
+
+```text
+-D NAME, --ifdef=NAME
+    Conditional preprocessor output is not implemented.
+
+--read-only=BEHAVIOR
+    GNU's selectable ignore/warn/fail read-only policy is not implemented.
+
+-x NUM, --debug=NUM
+    GNU DEBUGGING-build flags are not available in the normal managed release.
+```
+
+The obsolete GNU compatibility invocation `-b SUFFIX ORIGFILE PATCHFILE` is also not supported; `-b` always means `--backup`.
+
+## FILE SELECTION
+
+If `ORIGFILE` is supplied, it is the authoritative target operand for the patch sections being applied. Otherwise, `patch` derives candidate names from old/new headers and `Index:` records, applies `-p`, and resolves the result beneath the canonical working root.
+
+`/dev/null` headers represent creation or deletion where supported by the input format. Multiple file sections are applied independently, and completed earlier file units may remain committed if a later independent unit fails.
+
+## BACKUPS AND REJECTS
+
+Simple and numbered backup naming is supported. Backup, reject, target, and alternate-output paths are canonicalized and subjected to the same working-root containment policy as input targets.
+
+Rejected hunks are written in unified format for unified input by default and in context form otherwise, unless `--reject-format` selects a format explicitly.
+
+## ENVIRONMENT
+
+```text
+PATCH_GET
+    Supplies the default value for version-control retrieval policy.
+
+PATCH_VERSION_CONTROL
+    Selects backup version-control style. Takes precedence over VERSION_CONTROL.
+
+VERSION_CONTROL
+    Selects backup version-control style when PATCH_VERSION_CONTROL is unset.
+
+SIMPLE_BACKUP_SUFFIX
+    Supplies the default simple backup suffix when no explicit suffix is given.
+
+QUOTING_STYLE
+    Supplies the default filename quoting style.
+
+POSIXLY_CORRECT
+    Enables the supported POSIX policy defaults.
+```
+
+## EXIT STATUS
+
+```text
+0   All requested patch work completed successfully.
+1   One or more hunks were rejected, conflicted, skipped, or otherwise only
+    partially applied.
+2   Usage, malformed input, containment, I/O, or transaction trouble occurred.
+```
+
+Cooperative cancellation uses the shared `Icod.CommandFramework` cancellation status rather than being collapsed into GNU status `2`.
+
+## PLATFORM NOTES
+
+The implementation targets .NET 10 and is intended to run on Windows, Linux, and macOS. Path grammar, roots, volumes, symbolic links, junctions/reparse points, filesystem identity, metadata, transactional replacement, and durability capabilities are delegated to published neutral Icod libraries.
+
+Atomic publication and directory-durability guarantees are capability-reported by the active filesystem provider. Unix owner, group, mode, and timestamp fidelity depends on host capabilities and process privileges. Windows symbolic-link behavior depends on host permissions and policy.
+
+## LIMITATIONS
+
+Icod.Patch 1.0 does not implement conditional `-D` output, GNU `--read-only` policy selection, normal-release `-x` debugging flags, the obsolete three-operand `-b` form, Git binary/copy/rename payloads, hard-link-set topology updates, FIFO/device/socket targets, or persistent crash-recovery journaling.
+
+The implementation does not claim byte-for-byte parity with every GNU locale-specific diagnostic or interactive transcript. The complete conformance and residual-gap ledger is maintained in `upstream/GNU-patch-2.8-option-matrix.md` and `upstream/P12-closure-audit.md`.
+
+## AUTHORS
+
+Larry Wall wrote the original `patch`. Paul Eggert substantially developed GNU patch, removing arbitrary limits and adding support including binary files, file timestamps, file deletion, and improved POSIX conformance. Wayne Davison contributed unified-diff support, David MacKenzie contributed configuration and backup support, and Andreas Grünbacher contributed merge support and serves as a GNU patch co-maintainer. GNU patch 2.8 also incorporated contributions from Bruno Haible, Collin Funk, Eli Schwartz, Jean Delvare, Jim Meyering, Kerin Millar, Petr Vaněk, Sam James, Takashi Iwai, Andreas Grünbacher, and Paul Eggert.
+
+Migrated to .Net by Timothy J. Bruce <uniblab@hotmail.com>.
+
+## COPYRIGHT
+
+Copyright (c) 2026 Timothy J. Bruce
+
+See the repository `LICENSE` file for licensing terms applicable to this managed implementation. GNU patch provenance and release information are recorded under `upstream/`.
+
+## SEE ALSO
+
+`diff(1)`, `diff3(1)`, `ed(1)`, `patch(1)`
+
+Repository architecture, extraction history, build/test instructions, dependency details, and upstream attribution sources are preserved in [`doc/Repository-Overview.md`](doc/Repository-Overview.md). The development history is maintained in [`Icod.Patch-Development-Roadmap.md`](Icod.Patch-Development-Roadmap.md).
