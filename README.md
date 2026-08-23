@@ -6,9 +6,13 @@ The authoritative behavioral baseline is GNU patch 2.8. Pinned release metadata 
 
 ## Extraction status
 
-This repository contains the production-side G8 extraction of `Icod.Patch` from `Icod.CoreUtils`. The production source remains byte-for-byte aligned with the CoreUtils G7 merge snapshot, commit `945a33c7ec80222983a37a35084a93060bf7c519`, except for repository/project infrastructure required by the standalone repository.
+This repository contains the standalone G8 extraction of `Icod.Patch` from `Icod.CoreUtils`. The production source remains byte-for-byte aligned with the CoreUtils G7 merge snapshot, commit `945a33c7ec80222983a37a35084a93060bf7c519`, except for repository/project infrastructure required by the standalone repository.
 
-The dedicated `Icod.Patch.Tests` project and fixture corpus are intentionally **not** included in this first migration tranche. They remain in `Icod.CoreUtils` until the test migration is performed and validated separately. No Patch files are deleted from CoreUtils by this migration patch.
+The dedicated `Icod.Patch.Tests` project and its complete fixture corpus are now part of the standalone solution. The migrated tests cover parser/application behavior, canonical-path and containment policy, metadata and transaction recovery, fuzz and offset matching, reversal, backup/reject/output behavior, compatibility, process-host invocation, deterministic fuzzing, and opt-in GNU patch 2.8 differential checks.
+
+The standalone projects reference only their repository-local product project and published neutral dependencies. They do not depend on `Icod.CoreUtils.Shared` or `Icod.DiffUtils.Shared`. Removal of the now-migrated Patch files from `Icod.CoreUtils` is intentionally a separate repository-cleanup step after this standalone repository is independently validated.
+
+The standalone development and extraction record is maintained in [`Icod.Patch-Development-Roadmap.md`](Icod.Patch-Development-Roadmap.md).
 
 ## Current implementation
 
@@ -55,4 +59,18 @@ On Windows:
 build.cmd
 ```
 
-The initial standalone CI runs clean/restore/build on `windows-latest`, `ubuntu-latest`, and `macos-latest`. Test execution will be added when the dedicated test project and fixture corpus are migrated.
+With no argument, both scripts run `clean`, `restore`, `build`, and `test`. Individual verbs may also be run directly:
+
+```text
+clean
+restore
+build
+test
+```
+
+The standalone CI performs clean/restore/build/test across `windows-latest`, `ubuntu-latest`, and `macos-latest`:
+
+- pull requests use the `Staging` configuration; and
+- pushes to `main` use the `Release` configuration.
+
+The Linux GNU differential tests remain opt-in: they execute only when the host has an installed executable that identifies itself specifically as GNU patch 2.8. Ordinary tests have no native `patch` or `ed` dependency.

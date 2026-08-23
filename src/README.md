@@ -18,7 +18,7 @@ The source directory contains the closed P0–P12 implementation: complete Wave 
 - `PatchPrerequisite.cs` extracts and checks GNU-style `Prereq:` tokens.
 - `PatchPathSelection.cs`, `PatchPathModels.cs`, and `PatchApplicationPlanner.cs` implement filename evidence, canonical target selection, virtual state, and multi-file planning over `Icod.Path`.
 - `PatchTemporaryFile.cs` creates exclusive owner-private temporary files shared by source, target, and result storage.
-- `AssemblyInfo.cs` reserves internals visibility for the dedicated test assembly that will be migrated in the later test tranche.
+- `AssemblyInfo.cs` reserves internals visibility for the repository-local `Icod.Patch.Tests` assembly.
 
 P8 consumes the P7 plan and does not repeat filename selection or matching. P11A keeps GNU-visible backup, reject, output, and multi-file partial-success policy in Patch while delegating transaction mechanics to the neutral transactional-replacement layer. P11B removed the unreachable P9 implementation; no command-local replacement engine remains.
 

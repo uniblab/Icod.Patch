@@ -1,4 +1,4 @@
-name: pr-build
+name: pr-build-and-test
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build-and-test:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]

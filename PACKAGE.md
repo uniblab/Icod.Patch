@@ -40,6 +40,15 @@ The following remain owned by Patch:
 - Do not introduce a runtime dependency on Diffutils or LineEditor.
 - Publish the documented limitations from `upstream/P12-closure-audit.md` with any package release.
 
-## Deferred test tranche
+## Test and CI closure
 
-The production-side G8 migration intentionally omits `Icod.Patch.Tests` and its fixture corpus. Those files remain authoritative in `Icod.CoreUtils` until they are migrated and validated in a separate step. The standalone solution and CI therefore perform build validation only at this stage.
+The standalone repository contains `tests/Patch.Tests/Icod.Patch.Tests.csproj` and the complete Patch fixture corpus migrated from the CoreUtils G7 snapshot.
+
+The test project references only `Icod.Patch.csproj`; it does not reference `Icod.CoreUtils.Shared` or any Diffutils project. Fixture inputs retain their original bytes, including CRLF, NUL-bearing, invalid-byte, incomplete-record, and intentionally malformed cases.
+
+The repository build scripts support `clean`, `restore`, `build`, and `test`, and their default invocation runs all four stages. CI runs the solution on Windows, Ubuntu, and macOS using:
+
+- `Staging` for pull-request validation; and
+- `Release` for pushes to `main`.
+
+The remaining G8 integration gate is execution of the independent matrix and review of any platform-specific failures before the corresponding CoreUtils source is removed.

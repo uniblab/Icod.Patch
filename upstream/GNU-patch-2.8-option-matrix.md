@@ -82,6 +82,8 @@ patch [OPTION]... [ORIGFILE [PATCHFILE]]
 
 ## P12 differential and corpus closure
 
-The CoreUtils source snapshot from which this production migration was taken includes managed parser/application corpora covering unified, context, normal, and ed syntax; LF, CRLF, CR, incomplete records, invalid bytes, malformed ranges, quoted names, multi-file mail envelopes, creation/deletion, and deterministic resource limits. The dedicated test project and fixture corpus are intentionally deferred from this first standalone migration tranche and will be migrated separately.
+The standalone repository contains the managed parser/application corpus covering unified, context, normal, and ed syntax; LF, CRLF, CR, incomplete records, invalid bytes, malformed ranges, quoted names, multi-file mail envelopes, creation/deletion, deterministic resource limits, security/containment behavior, transaction recovery, fuzz, offset, reversal, backup, reject, output, and compatibility behavior.
+
+The fixture corpus includes captured textual output from Icod Diffutils as an interoperability boundary without introducing a project or runtime dependency. Linux differential tests against GNU patch 2.8 remain opt-in and self-identifying.
 
 See [`P12-closure-audit.md`](P12-closure-audit.md) for residual functionality and platform limitations.

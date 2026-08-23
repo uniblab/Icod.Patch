@@ -18,7 +18,7 @@ The checksum and signing-key fingerprint are taken from the official GNU release
 
 ## Fixture policy
 
-GNU-derived fixtures must identify their upstream test or documentation origin when the dedicated test corpus is migrated. Repository tests must not depend on a locally installed `patch` executable and must not shell out to GNU patch during ordinary test execution.
+GNU-derived fixtures identify their provenance in `tests/Patch.Tests/fixtures/README.md`. Ordinary repository tests do not depend on a locally installed `patch` executable and do not shell out to GNU patch or `ed`. The separately labeled Linux differential suite is opt-in and first verifies that the installed command identifies itself specifically as GNU patch 2.8.
 
 ## Option inventory
 

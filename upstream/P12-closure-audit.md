@@ -6,7 +6,7 @@ Phase P11B and the implementation portion of Phase P12 are complete. Production 
 
 The original CoreUtils closure pass covered the complete release option inventory, parser corpora, four-format Diffutils interoperability, GNU 2.8 opt-in differential checks, containment, resource limits, cancellation, POSIX defaults, public surface, formatting, and dependency classification.
 
-For the first standalone G8 migration tranche, production source and repository infrastructure are migrated without the dedicated test project or fixture corpus. The three-platform standalone CI therefore validates build only until the tests are migrated separately.
+The standalone G8 repository now contains the production source, dedicated test project, complete fixture corpus, build/test scripts, and three-platform CI configuration. The test suite preserves the original byte-sensitive fixture corpus and exercises the security, canonical-path, metadata, transaction, matching, artifact, compatibility, and process-host boundaries required for extraction closure.
 
 ## Functionality still not implemented
 
@@ -40,4 +40,8 @@ The production project is now staged in the dedicated `Icod.Patch` repository wi
 
 There is no production dependency on `Icod.CoreUtils.Shared`, `Icod.DiffUtils.Shared`, native `patch`, or native `ed`. Patch-specific parsing, matching, filename evidence, artifact naming, rejects, partial-application policy, and GNU diagnostics remain in `Icod.Patch`.
 
-The dedicated test project and fixture corpus remain in CoreUtils until the separate test-migration tranche is completed.
+The dedicated `Icod.Patch.Tests` project and complete fixture corpus are migrated into this repository. The test project references the repository-local product project only; Diffutils interoperability remains a captured textual-format boundary rather than a runtime dependency.
+
+The repository build scripts and CI configuration execute clean/restore/build/test across the standalone solution. Pull requests validate `Staging` on Windows, Ubuntu, and macOS; pushes to `main` validate `Release` on the same matrix.
+
+Physical removal of the migrated Patch source/test tree from `Icod.CoreUtils` remains a separate CoreUtils cleanup operation after independent standalone validation.
