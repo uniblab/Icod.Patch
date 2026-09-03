@@ -2,14 +2,18 @@
 
 ## Identity
 
-- Project: `Icod.Patch`
+- Project/package: `Icod.Patch`
 - Command/assembly: `patch`
-- Version: `1.0.0`
+- Version: `1.0.1`
 - Target framework: `net10.0`
 - Language policy: C# 13
 - Behavioral baseline: GNU patch 2.8
 - Public API facade: `Icod.Patch.Command`
 - Exit classes: GNU-compatible `0`, `1`, and `2`, plus the command-framework canceled status for cooperative cancellation
+
+Repository versioning is centralized in the root `Directory.Build.props`. `VersionPrefix` is the authoritative release-version literal, with `Version`, `PackageVersion`, `AssemblyVersion`, and `FileVersion` derived from it.
+
+The NuGet package identity is explicitly `Icod.Patch`; it is intentionally independent of the command/assembly name `patch`. The package embeds the repository `README.md` as its NuGet readme and `icon.png` as its package icon, and declares `GPL-3.0-or-later` licensing metadata.
 
 ## Direct dependencies
 
@@ -39,6 +43,7 @@ The following remain owned by Patch:
 - Preserve the GNU patch 2.8 provenance and conformance documents under `upstream/`.
 - Do not introduce a runtime dependency on Diffutils or LineEditor.
 - Publish the documented limitations from `upstream/P12-closure-audit.md` with any package release.
+- Require a `v<semver>` release tag to match the actual `Icod.Patch` nuspec version before package publication.
 
 ## Test and CI closure
 
