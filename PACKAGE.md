@@ -4,7 +4,7 @@
 
 - Project/package: `Icod.Patch`
 - Command/assembly: `patch`
-- Version: `1.0.1`
+- Version: `1.0.2`
 - Target framework: `net10.0`
 - Language policy: C# 13
 - Behavioral baseline: GNU patch 2.8
@@ -13,14 +13,16 @@
 
 Repository versioning is centralized in the root `Directory.Build.props`. `VersionPrefix` is the authoritative release-version literal, with `Version`, `PackageVersion`, `AssemblyVersion`, and `FileVersion` derived from it.
 
-The NuGet package identity is explicitly `Icod.Patch`; it is intentionally independent of the command/assembly name `patch`. The package embeds the repository `README.md` as its NuGet readme and `icon.png` as its package icon, and declares `GPL-3.0-or-later` licensing metadata.
+The NuGet package identity is explicitly `Icod.Patch`; it is intentionally independent of the command/assembly name `patch`. The package embeds the repository root `README.md` as its NuGet readme and `icon.png` as its package icon, and declares `GPL-3.0-or-later` licensing metadata.
+
+Version `1.0.2` is a dependency-update release. It updates the published neutral infrastructure dependencies without intentionally changing Patch-owned command behavior.
 
 ## Direct dependencies
 
 | Dependency | Ownership |
 |---|---|
-| `Icod.CommandFramework` 1.1.0 | Published neutral command, byte-I/O, metadata, mutation, and transactional-replacement infrastructure. |
-| `Icod.Path` 1.0.0 | Published neutral lexical/physical path, identity, link, reparse, and containment contract. |
+| `Icod.CommandFramework` 2.1.0 | Published neutral command, byte-I/O, metadata, mutation, and transactional-replacement infrastructure. |
+| `Icod.Path` 1.1.0 | Published neutral lexical/physical path, identity, link, reparse, and containment contract. |
 
 `Icod.Patch` has no production dependency on `Icod.CoreUtils.Shared`, `Icod.DiffUtils.Shared`, or `Icod.LineEditor`.
 

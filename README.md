@@ -1,5 +1,8 @@
 # PATCH(1)
 
+[![PR Staging build](https://github.com/uniblab/Icod.Patch/actions/workflows/pull-request.yaml/badge.svg?event=pull_request)](https://github.com/uniblab/Icod.Patch/actions/workflows/pull-request.yaml)
+[![Main Release validation](https://github.com/uniblab/Icod.Patch/actions/workflows/main.yaml/badge.svg?branch=main)](https://github.com/uniblab/Icod.Patch/actions/workflows/main.yaml)
+
 ## NAME
 
 **patch** — apply diff files to original files
@@ -13,6 +16,10 @@ patch [OPTION]... [ORIGFILE [PATCHFILE]]
 ## DESCRIPTION
 
 `Icod.Patch` is a managed .NET implementation of GNU `patch(1)`, modeled on GNU patch 2.8 and targeting .NET 10 with C# 13.
+
+Version `1.0.2` is a dependency-update release. It does not intentionally change GNU patch behavior; it updates the published neutral infrastructure dependencies to `Icod.CommandFramework` 2.1.0 and `Icod.Path` 1.1.0 while preserving the existing Patch-owned parsing, matching, application, and transaction semantics.
+
+The repository root `README.md` is also the NuGet package README declared by `Icod.Patch.csproj`, so package consumers receive this same command reference and release context.
 
 `patch` reads a difference listing and applies its changes to an original file or set of files. Patch input may come from standard input, an explicit `-i` input file, or the `PATCHFILE` operand. When `ORIGFILE` is omitted, file names are selected from patch headers and `Index:` evidence according to GNU- or POSIX-style policy.
 

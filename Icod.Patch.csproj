@@ -32,8 +32,8 @@
 		<Compile Include="src\**\*.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Icod.CommandFramework" Version="1.1.0" />
-		<PackageReference Include="Icod.Path" Version="1.0.0" />
+		<PackageReference Include="Icod.CommandFramework" Version="2.1.0" />
+		<PackageReference Include="Icod.Path" Version="1.1.0" />
 	</ItemGroup>
 	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
 		<ErrorReport>prompt</ErrorReport>
