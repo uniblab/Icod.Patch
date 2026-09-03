@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+	<PropertyGroup>
+		<VersionPrefix>1.0.1</VersionPrefix>
+		<Version>$(VersionPrefix)</Version>
+		<PackageVersion>$(Version)</PackageVersion>
+		<AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+		<FileVersion>$(VersionPrefix).0</FileVersion>
+	</PropertyGroup>
+</Project>

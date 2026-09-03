@@ -13,7 +13,16 @@
 		<AssemblyName>patch</AssemblyName>
 		<RootNamespace>Icod.Patch</RootNamespace>
 		<Configurations>Debug;Release;Staging</Configurations>
-		<Version>1.0.0</Version>
+	</PropertyGroup>
+	<PropertyGroup>
+		<PackageId>Icod.Patch</PackageId>
+		<Title>Icod.Patch</Title>
+		<Authors>Timothy J. Bruce</Authors>
+		<Description>Managed .NET implementation of GNU patch 2.8.</Description>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(PlatformTarget)' == '' ">
 		<PlatformTarget>AnyCPU</PlatformTarget>
@@ -56,7 +65,7 @@
 		<WarningsNotAsErrors>CS1591</WarningsNotAsErrors>
 	</PropertyGroup>
 	<ItemGroup>
-		<Content Include="README.md">
+		<Content Include="README.md" Pack="true" PackagePath="\">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<TargetPath>$(AssemblyName).README.md</TargetPath>
 		</Content>
@@ -64,5 +73,6 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<TargetPath>$(AssemblyName).LICENSE.txt</TargetPath>
 		</Content>
+		<None Include="icon.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 </Project>
