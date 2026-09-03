@@ -48,7 +48,7 @@ The standalone executable depends on:
 
 Icod.Patch 1.0 deliberately does not implement `-D`/`--ifdef`, `--read-only=ignore|warn|fail`, the GNU `DEBUGGING`-only `-x` surface, the obsolete three-operand `-b` compatibility form, Git binary/copy/rename payloads, hard-link-set topology updates, or FIFO/device/socket targets. The transaction layer does not provide persistent crash-recovery journaling. See the closure audit for the complete platform and behavior ledger.
 
-## Build
+## Build and CI/CD
 
 On Unix-like hosts:
 
@@ -62,19 +62,31 @@ On Windows:
 build.cmd
 ```
 
-With no argument, both scripts run `clean`, `restore`, `build`, and `test`. Individual verbs may also be run directly:
+With no argument, both wrappers use the `Debug` configuration and run:
+
+```text
+clean → restore → build → test → pack → validate
+```
+
+Individual stages may also be invoked directly:
 
 ```text
 clean
 restore
 build
 test
+pack
+validate
 ```
 
-The standalone CI performs clean/restore/build/test across `windows-latest`, `ubuntu-latest`, and `macos-latest`:
+The repository follows the canonical `uniblab/.github` lifecycle:
 
-- pull requests use the `Staging` configuration; and
-- pushes to `main` use the `Release` configuration.
+- pull requests use `Staging` on `windows-latest`, `ubuntu-latest`, and `macos-latest`; the Linux job also packs and validates exact NuGet artifacts;
+- pushes to `main` use `Release` and run authoritative distribution validation on Windows x64, Windows ARM64, Linux x64, Linux ARM64, macOS x64, and macOS ARM64;
+- the manual `distribution-validation` workflow can run Debug, Staging, or Release across the same six-runner matrix; and
+- `v<semver>` tags contained in the default branch use `Release` to select packages whose nuspec version matches the tag, publish configured package artifacts, and create framework-dependent single-file archives for all six RIDs.
+
+Build inputs, package metadata, and executable projects are discovered from the solution/MSBuild rather than inferred from repository-name literals. The metadata workflow exports a repository-relative solution path so Linux-produced metadata can be consumed safely by Windows and macOS jobs.
 
 The Linux GNU differential tests remain opt-in: they execute only when the host has an installed executable that identifies itself specifically as GNU patch 2.8. Ordinary tests have no native `patch` or `ed` dependency.
 
