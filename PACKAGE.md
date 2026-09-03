@@ -46,9 +46,11 @@ The standalone repository contains `tests/Patch.Tests/Icod.Patch.Tests.csproj` a
 
 The test project references only `Icod.Patch.csproj`; it does not reference `Icod.CoreUtils.Shared` or any Diffutils project. Fixture inputs retain their original bytes, including CRLF, NUL-bearing, invalid-byte, incomplete-record, and intentionally malformed cases.
 
-The repository build scripts support `clean`, `restore`, `build`, and `test`, and their default invocation runs all four stages. CI runs the solution on Windows, Ubuntu, and macOS using:
+Build and release automation follows the canonical `uniblab/.github` C#/.NET repository pattern:
 
-- `Staging` for pull-request validation; and
-- `Release` for pushes to `main`.
+- local `build.cmd` / `build.sh` use `Debug` and run `clean → restore → build → test → pack → validate` by default;
+- pull requests use `Staging` on Windows, Linux, and macOS, with Linux also packing and validating exact NuGet artifacts;
+- pushes to `main` use `Release` distribution validation across Windows/Linux/macOS on x64 and ARM64; and
+- `v<semver>` tags contained in the default branch use `Release` to select matching packages, publish to configured registries, and build framework-dependent single-file archives for `win-x64`, `win-arm64`, `linux-x64`, `linux-arm64`, `osx-x64`, and `osx-arm64`.
 
-The remaining G8 integration gate is execution of the independent matrix and review of any platform-specific failures before the corresponding CoreUtils source is removed.
+Repository metadata and executable discovery are MSBuild-driven rather than derived from the GitHub repository name. Tagged release publication requires the package's actual nuspec version to match the tag version.
